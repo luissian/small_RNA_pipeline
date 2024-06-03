@@ -1,0 +1,46 @@
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl = 2
+
+params.str = 'Hello world!'
+
+include { INITIALIZATION_PIPELINE } from './subworkflows/utils_common/initialization_pipeline'
+
+
+process splitLetters {
+    output:
+    path 'chunk_*'
+
+    """
+    printf '${params.str}' | split -b 6 - chunk_
+    """
+}
+
+process convertToUpper {
+    input:
+    path x
+
+    output:
+    stdout
+
+    """
+    cat $x | tr '[a-z]' '[A-Z]'
+    """
+}
+
+workflow {
+    // SUBWORKFLOW: Run initialisation tasks
+    //
+    INITIALIZATION_PIPELINE (
+        params.version,
+        params.help,
+        params.validate_params,
+        params.monochrome_logs,
+        args,
+        params.outdir,
+        params.input
+    )
+
+
+    splitLetters | flatten | convertToUpper | view { it.trim() }
+}
