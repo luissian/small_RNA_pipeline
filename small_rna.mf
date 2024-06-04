@@ -4,6 +4,7 @@ nextflow.enable.dsl = 2
 
 params.str = 'Hello world!'
 
+include { SMALL_RNA_PIPELINE         } from './workflows/small_rna_workflow'
 include { INITIALIZATION_PIPELINE } from './subworkflows/utils_common/initialization_pipeline'
 
 
@@ -28,7 +29,16 @@ process convertToUpper {
     """
 }
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RUN MAIN WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 workflow {
+
+    main:
+    ch_versions = Channel.empty()
+    //
     // SUBWORKFLOW: Run initialisation tasks
     //
     INITIALIZATION_PIPELINE (
@@ -43,4 +53,12 @@ workflow {
 
 
     splitLetters | flatten | convertToUpper | view { it.trim() }
+    //
+    // WORKFLOW: Run small RNA workflow
+    //
+    SMALL_RNA_PIPELINE (
+        Channel.of(file(params.input, checkIfExists: true)),
+        INITIALIZATION_PIPELINE.out.samplesheet,
+        ch_versions
+    )
 }
