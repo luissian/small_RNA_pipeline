@@ -9,6 +9,7 @@ include { UTILS_NFVALIDATION_PLUGIN   } from '../../utils_common/utils_nfvalidat
 include { pipelineLogo              } from '../../utils_small_rnaseq_pipeline/utils_logo_pipeline'
 include { dashedLine                } from '../../utils_common/utils_common_pipeline'
 
+include { fromSamplesheet           } from 'plugin/nf-validation'
 
 workflow INITIALIZATION_PIPELINE {
 
@@ -50,6 +51,33 @@ workflow INITIALIZATION_PIPELINE {
         validate_params,
         "nextflow_schema.json"
     )
+    
+    
+    // Create channel from input file provided through params.input
+    //
+    Channel
+        .fromSamplesheet("input")
+        .map {
+            meta, fastq_1, fastq_2 ->
+                if (!fastq_2) {
+                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+                } else {
+                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                }
+        }
+        .groupTuple()
+        .map {
+            validateInputSamplesheet(it)
+        }
+        .map {
+            meta, fastqs ->
+                return [ meta, fastqs.flatten() ]
+        }
+        .set { ch_samplesheet }
+
+    emit:
+    samplesheet = ch_samplesheet
+    versions    = ch_versions
 
 }
 
