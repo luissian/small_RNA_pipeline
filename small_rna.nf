@@ -6,6 +6,18 @@ params.str = 'Hello world!'
 
 include { SMALL_RNA_PIPELINE         } from './workflows/small_rna_workflow'
 include { INITIALIZATION_PIPELINE } from './subworkflows/utils_common/initialization_pipeline'
+include { getGenomeAttribute      } from './subworkflows/utils_small_rna/utils_small_rna_pipeline'
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    GENOME PARAMETER VALUES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+params.fasta            = getGenomeAttribute('fasta')
+params.mirtrace_species = getGenomeAttribute('mirtrace_species')
+params.bowtie_index     = getGenomeAttribute('bowtie')
+
 
 
 process splitLetters {
@@ -52,7 +64,7 @@ workflow {
     )
 
 
-    splitLetters | flatten | convertToUpper | view { it.trim() }
+    
     //
     // WORKFLOW: Run small RNA workflow
     //
@@ -61,4 +73,6 @@ workflow {
         INITIALIZATION_PIPELINE.out.samplesheet,
         ch_versions
     )
+    
+    splitLetters | flatten | convertToUpper | view { it.trim() }
 }
