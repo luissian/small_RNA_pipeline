@@ -31,9 +31,9 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
     take:
     reads             // channel: [ val(meta), [ reads ] ]
     skip_fastqc       // boolean: true/false
-    with_umi          // boolean: true/false
-    skip_umi_extract  // boolean: true/false
-    umi_discard_read  // integer: 0, 1 or 2
+    // with_umi          // boolean: true/false
+    // skip_umi_extract  // boolean: true/false
+    // umi_discard_read  // integer: 0, 1 or 2
     skip_trimming     // boolean: true/false
     adapter_fasta     // file: adapter.fasta
     save_trimmed_fail // boolean: true/false
@@ -54,6 +54,7 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
     }
 
     umi_reads = reads
+    /*
     umi_log   = Channel.empty()
     if (with_umi && !skip_umi_extract) {
         UMITOOLS_EXTRACT (
@@ -75,7 +76,8 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
                 .set { umi_reads }
         }
     }
-
+    */
+    
     trim_reads        = umi_reads
     trim_json         = Channel.empty()
     trim_html         = Channel.empty()
@@ -140,7 +142,7 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
     fastqc_raw_html    // channel: [ val(meta), [ html ] ]
     fastqc_raw_zip     // channel: [ val(meta), [ zip ] ]
 
-    umi_log            // channel: [ val(meta), [ log ] ]
+    // umi_log         // channel: [ val(meta), [ log ] ]
     adapter_seq        // channel: [ val(meta), [ adapter_seq] ]
 
     trim_json          // channel: [ val(meta), [ json ] ]

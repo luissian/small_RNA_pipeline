@@ -63,17 +63,28 @@ workflow SMALL_RNA_PIPELINE {
     ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first())
     
     
-    mirna_adapters = params.with_umi ? [] : params.fastp_known_mirna_adapters
+    mirna_adapters = params.fastp_known_mirna_adapters
     
     //
     // SUBWORKFLOW: Read QC, extract UMI and trim adapters & dedup UMIs if necessary / desired by the user
     //
+    /*
     FASTQ_FASTQC_UMITOOLS_FASTP (
         ch_cat_fastq,
         params.skip_fastqc,
         params.with_umi,
         params.skip_umi_extract_before_dedup,
         params.umi_discard_read,
+        params.skip_fastp,
+        mirna_adapters,
+        params.save_trimmed_fail,
+        params.save_merged,
+        params.min_trimmed_reads
+    )
+    */
+    FASTQ_FASTQC_UMITOOLS_FASTP (
+        ch_cat_fastq,
+        params.skip_fastqc,
         params.skip_fastp,
         mirna_adapters,
         params.save_trimmed_fail,
