@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 # yaml-language-server: $schema=yaml-schema.json
-name: "fastq_fastqc_umitools_fastp"
+name: "fastq_fastqc_fastp"
 description: Read QC, UMI extraction and trimming
 keywords:
   - fastq

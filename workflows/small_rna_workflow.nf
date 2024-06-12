@@ -5,7 +5,7 @@
 */
 
 include { CAT_FASTQ                        } from '../modules/cat/fastq/main'
-include { FASTQ_FASTQC_UMITOOLS_FASTP      } from '../subworkflows/utils_common/fastq_fastqc_umitools_fastp'
+include { FASTQ_FASTQC_FASTP      } from '../subworkflows/utils_common/fastq_fastqc_fastp'
 
 
 /*
@@ -68,21 +68,7 @@ workflow SMALL_RNA_PIPELINE {
     //
     // SUBWORKFLOW: Read QC, extract UMI and trim adapters & dedup UMIs if necessary / desired by the user
     //
-    /*
-    FASTQ_FASTQC_UMITOOLS_FASTP (
-        ch_cat_fastq,
-        params.skip_fastqc,
-        params.with_umi,
-        params.skip_umi_extract_before_dedup,
-        params.umi_discard_read,
-        params.skip_fastp,
-        mirna_adapters,
-        params.save_trimmed_fail,
-        params.save_merged,
-        params.min_trimmed_reads
-    )
-    */
-    FASTQ_FASTQC_UMITOOLS_FASTP (
+    FASTQ_FASTQC_FASTP (
         ch_cat_fastq,
         params.skip_fastqc,
         params.skip_fastp,
@@ -91,7 +77,7 @@ workflow SMALL_RNA_PIPELINE {
         params.save_merged,
         params.min_trimmed_reads
     )
-    ch_versions = ch_versions.mix(FASTQ_FASTQC_UMITOOLS_FASTP.out.versions)
+    ch_versions = ch_versions.mix(FASTQ_FASTQC_FASTP.out.versions)
     
 
 

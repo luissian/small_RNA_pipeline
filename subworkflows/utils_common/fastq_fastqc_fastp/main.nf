@@ -27,13 +27,10 @@ def getFastpAdapterSequence(json_file){
     return adapter
 }
 
-workflow FASTQ_FASTQC_UMITOOLS_FASTP {
+workflow FASTQ_FASTQC_FASTP {
     take:
     reads             // channel: [ val(meta), [ reads ] ]
     skip_fastqc       // boolean: true/false
-    // with_umi          // boolean: true/false
-    // skip_umi_extract  // boolean: true/false
-    // umi_discard_read  // integer: 0, 1 or 2
     skip_trimming     // boolean: true/false
     adapter_fasta     // file: adapter.fasta
     save_trimmed_fail // boolean: true/false
@@ -53,32 +50,8 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
         ch_versions     = ch_versions.mix(FASTQC_RAW.out.versions.first())
     }
 
-    umi_reads = reads
-    /*
-    umi_log   = Channel.empty()
-    if (with_umi && !skip_umi_extract) {
-        UMITOOLS_EXTRACT (
-            reads
-        )
-        umi_reads   = UMITOOLS_EXTRACT.out.reads
-        umi_log     = UMITOOLS_EXTRACT.out.log
-        ch_versions = ch_versions.mix(UMITOOLS_EXTRACT.out.versions.first())
-
-        // Discard R1 / R2 if required
-        if (umi_discard_read in [1,2]) {
-            UMITOOLS_EXTRACT
-                .out
-                .reads
-                .map {
-                    meta, reads ->
-                        meta.single_end ? [ meta, reads ] : [ meta + [single_end: true], reads[umi_discard_read % 2] ]
-                }
-                .set { umi_reads }
-        }
-    }
-    */
-    
-    trim_reads        = umi_reads
+  
+    trim_reads        = reads
     trim_json         = Channel.empty()
     trim_html         = Channel.empty()
     trim_log          = Channel.empty()
@@ -91,7 +64,7 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
 
     if (!skip_trimming) {
         FASTP (
-            umi_reads,
+            reads,
             adapter_fasta,
             save_trimmed_fail,
             save_merged
@@ -141,8 +114,6 @@ workflow FASTQ_FASTQC_UMITOOLS_FASTP {
 
     fastqc_raw_html    // channel: [ val(meta), [ html ] ]
     fastqc_raw_zip     // channel: [ val(meta), [ zip ] ]
-
-    // umi_log         // channel: [ val(meta), [ log ] ]
     adapter_seq        // channel: [ val(meta), [ adapter_seq] ]
 
     trim_json          // channel: [ val(meta), [ json ] ]
